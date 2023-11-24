@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload Test with Axios</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>File Upload Test with Axios</h1>
+    <input type="file" id="fileInput">
+    <button id="uploadButton">Upload File</button>
+    <div id="uploadProgress"></div>
+
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', () => {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                alert('Please choose a file first!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            axios.post('http://localhost:3000/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                onUploadProgress: progressEvent => {
+                    let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    document.getElementById('uploadProgress').textContent = `Upload progress: ${percentCompleted}%`;
+                }
+            })
+            .then(response => {
+                console.log('File uploaded successfully', response);
+                document.getElementById('uploadProgress').textContent = `Upload completed. Path: ${response.data.filePath}`;
+            })
+            .catch(error => {
+                console.error('Upload failed:', error);
+                document.getElementById('uploadProgress').textContent = 'Upload failed';
+            });
+        });
+    </script>
+</body>
+</html>
